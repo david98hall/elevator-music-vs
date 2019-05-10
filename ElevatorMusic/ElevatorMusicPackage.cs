@@ -1,7 +1,14 @@
 ﻿using System;
+using System.ComponentModel.Design;
+using System.Media;
 using System.Runtime.InteropServices;
 using System.Threading;
+using EnvDTE;
+using EnvDTE80;
+using Microsoft;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
 
 namespace ElevatorMusic
@@ -23,14 +30,22 @@ namespace ElevatorMusic
     /// To get loaded into VS, the package must be referred by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
     /// </para>
     /// </remarks>
+    ///    
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [Guid(ElevatorMusicPackage.PackageGuidString)]
+    [InstalledProductRegistration("#110", "#112", "1.0.0.0", IconResourceID = 400)]
+    [Guid("7df0d6a2-ecd0-43e5-88e4-e4a037d0084b")]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string)]
     public sealed class ElevatorMusicPackage : AsyncPackage
     {
         /// <summary>
         /// ElevatorMusicPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "68fb2f81-f553-413b-a3e9-b0cadc68e530";
+
+        #region Build event action fields
+        private static readonly string elevatorMusicFilepath = "/Resources/Music/Local Forecast - Elevator.mp3";
+        private readonly SoundPlayer player = new SoundPlayer(@elevatorMusicFilepath);
+        #endregion
 
         #region Package Members
 
@@ -46,8 +61,22 @@ namespace ElevatorMusic
             // When initialized asynchronously, the current thread may be a background thread at this point.
             // Do any initialization that requires the UI thread after switching to the UI thread.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-        }
 
+            InitializeBuildEventActions();
+        }
         #endregion
+
+        #region Build event action
+        private void InitializeBuildEventActions()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            var dte = GetService(typeof(SDTE)) as DTE;
+            Assumes.Present(dte);
+            dte.Events.BuildEvents.OnBuildBegin += (vsBuildScope Scope, vsBuildAction Action) => player.PlaySync();
+            dte.Events.BuildEvents.OnBuildDone += (vsBuildScope Scope, vsBuildAction Action) => player.Stop();
+        }
+        #endregion
+
     }
 }
