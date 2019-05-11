@@ -45,7 +45,7 @@ namespace ElevatorMusic
         public const string PackageGuidString = "68fb2f81-f553-413b-a3e9-b0cadc68e530";
 
         #region Build event action fields
-        private static readonly string elevatorMusicFilepath = "/Resources/Music/Local Forecast - Elevator.mp3";
+        private static readonly string elevatorMusicFilepath = Environment.CurrentDirectory + "/Resources/Music/Local Forecast - Elevator.wav";
         private readonly SoundPlayer player = new SoundPlayer(@elevatorMusicFilepath);
         #endregion
 
@@ -67,15 +67,17 @@ namespace ElevatorMusic
             // Build events            
             var dte = await GetServiceAsync(typeof(DTE)) as DTE;
             Assumes.Present(dte);
-            dte.Events.BuildEvents.OnBuildBegin += (vsBuildScope Scope, vsBuildAction Action) => 
+            dte.Events.BuildEvents.OnBuildBegin += (vsBuildScope Scope, vsBuildAction Action) =>
             {
-                Debug.WriteLine("My build begin action!");
                 player.PlaySync();
+                // _ = Task.Run(() => player.PlaySync());
+                Debug.WriteLine("My build begin action!");
             };
             dte.Events.BuildEvents.OnBuildDone += (vsBuildScope Scope, vsBuildAction Action) =>
             {
-                Debug.WriteLine("My build done action!");
                 player.Stop();
+                // _ = Task.Run(() => player.Stop());
+                Debug.WriteLine("My build done action!");
             };            
 
         }
