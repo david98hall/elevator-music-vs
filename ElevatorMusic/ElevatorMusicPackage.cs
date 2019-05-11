@@ -33,7 +33,7 @@ namespace ElevatorMusic
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration("Build Elevator Music", "Plays elevator music when building solutions and projects.", "1.0")]
     // The following line will schedule the package to be initialized when a solution is being opened
-    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionOpening_string, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class ElevatorMusicPackage : AsyncPackage
     {
         /// <summary>
@@ -64,7 +64,7 @@ namespace ElevatorMusic
             // Play elevator music when the build starts and stop the playback when the build is finished
             var dte = await GetServiceAsync(typeof(DTE)) as DTE;
             Assumes.Present(dte);
-            dte.Events.BuildEvents.OnBuildBegin += (vsBuildScope Scope, vsBuildAction Action) => player.Play();
+            dte.Events.BuildEvents.OnBuildBegin += (vsBuildScope Scope, vsBuildAction Action) => player.PlayLooping();
             dte.Events.BuildEvents.OnBuildDone += (vsBuildScope Scope, vsBuildAction Action) => player.Stop();
         }
         #endregion        
