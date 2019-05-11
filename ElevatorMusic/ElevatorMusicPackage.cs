@@ -1,11 +1,14 @@
-﻿using EnvDTE;
+﻿using ElevatorMusic.Playback;
+using EnvDTE;
 using Microsoft;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using System;
+using System.IO;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using Task = System.Threading.Tasks.Task;
 
 namespace ElevatorMusic
@@ -40,11 +43,6 @@ namespace ElevatorMusic
         /// </summary>
         public const string PackageGuidString = "68fb2f81-f553-413b-a3e9-b0cadc68e530";
 
-        #region Build event action fields
-        private static readonly string elevatorMusicFilepath = Environment.CurrentDirectory + "/Resources/Music/Local Forecast - Elevator.wav";
-        private readonly SoundPlayer player = new SoundPlayer(@elevatorMusicFilepath);
-        #endregion
-
         #region Package Members
 
         /// <summary>
@@ -55,18 +53,43 @@ namespace ElevatorMusic
         /// <param name="progress">A provider for progress updates.</param>
         /// <returns>A task representing the async work of package initialization, or an already completed task if there is none. Do not return null from this method.</returns>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
+        {            
+            await InitPlaybackEventActionsAsync(await GetSoundShufflerAsync(), cancellationToken);
+        }
+        #endregion
+
+        #region Playback
+        private async Task<SoundShuffler> GetSoundShufflerAsync()
+        {
+            var soundShuffler = new SoundShuffler();
+
+            // Add music files
+            await Task.Run(() => 
+            {
+                var directoryPath = Environment.CurrentDirectory + "/Resources/Test/";
+                string[] filePaths = Directory.GetFiles(@directoryPath, "*.wav", SearchOption.TopDirectoryOnly);
+                foreach (string filePath in filePaths)
+                {
+                    soundShuffler.AddSound(filePath);
+                }
+            });
+
+            return soundShuffler;
+        }
+
+        private async Task InitPlaybackEventActionsAsync(SoundShuffler soundShuffler, CancellationToken cancellationToken)
         {
             // When initialized asynchronously, the current thread may be a background thread at this point.
             // Do any initialization that requires the UI thread after switching to the UI thread.
-            await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
             // Play elevator music when the build starts and stop the playback when the build is finished
             var dte = await GetServiceAsync(typeof(DTE)) as DTE;
             Assumes.Present(dte);
-            dte.Events.BuildEvents.OnBuildBegin += (vsBuildScope Scope, vsBuildAction Action) => player.PlayLooping();
-            dte.Events.BuildEvents.OnBuildDone += (vsBuildScope Scope, vsBuildAction Action) => player.Stop();
+            dte.Events.BuildEvents.OnBuildBegin += (vsBuildScope Scope, vsBuildAction Action) => soundShuffler.ShufflePlayAsync(true).ConfigureAwait(true);
+            dte.Events.BuildEvents.OnBuildDone += (vsBuildScope Scope, vsBuildAction Action) => soundShuffler.StopPlayback();
         }
-        #endregion        
+        #endregion
 
     }
 }

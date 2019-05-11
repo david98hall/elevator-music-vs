@@ -61,6 +61,14 @@ namespace ElevatorMusic.Playback
         #region Playback
         internal async Task ShufflePlayAsync(bool looping)
         {
+            Shuffle();
+
+            // Play the sounds in the shuffled order
+            await StartPlaybackAsync(looping);
+        }
+
+        internal void Shuffle()
+        {
             // Stop and reset the shuffler
             StopPlayback();
             Reset();
@@ -72,9 +80,6 @@ namespace ElevatorMusic.Playback
             {
                 nextSounds.Push(players[random.Next(players.Count)]);
             }
-
-            // Play the sounds in the shuffled order
-            await StartPlaybackAsync(looping);
         }
 
         internal async Task StartPlaybackAsync(bool looping)
@@ -124,7 +129,7 @@ namespace ElevatorMusic.Playback
             }, token);
         }
 
-        private void StopPlayback()
+        internal void StopPlayback()
         {
             StopPlayback(false);
         }
