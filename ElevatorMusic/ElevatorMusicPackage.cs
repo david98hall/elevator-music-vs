@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.Shell;
 using System;
 using System.IO;
 using System.Media;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -66,7 +67,8 @@ namespace ElevatorMusic
             // Add music files
             await Task.Run(() => 
             {
-                var directoryPath = Environment.CurrentDirectory + "/Resources/Music/";
+                var directoryPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase) + "\\Resources\\Music\\";
+                directoryPath = directoryPath.Substring("file:\\".Length);
                 string[] filePaths = Directory.GetFiles(@directoryPath, "*.wav", SearchOption.TopDirectoryOnly);
                 foreach (string filePath in filePaths)
                 {
