@@ -36,7 +36,7 @@ namespace ElevatorMusic.Playback
         {
             if (File.Exists(filepath))
             {
-                soundPlayers.Add(filepath, new SoundPlayer(@filepath));
+                soundPlayers.Add(filepath, new AudioPlayer(@filepath));
             }
         }
 
@@ -108,7 +108,7 @@ namespace ElevatorMusic.Playback
                     if (soundPlayers.TryGetValue(currentSound, out SoundPlayer player))
                     {
                         token.Register(() => player.Stop());
-                        player.PlaySync();
+                        await (player as AudioPlayer)?.PlayAsync();
                     }
 
                     // Store the played sound in the history

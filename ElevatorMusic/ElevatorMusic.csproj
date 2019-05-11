@@ -45,6 +45,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Playback\AudioPlayer.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Playback\SoundInfo.cs" />
     <Compile Include="Playback\SoundShuffler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ElevatorMusicPackage.cs" />
