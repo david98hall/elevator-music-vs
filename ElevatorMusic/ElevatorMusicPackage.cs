@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -31,10 +32,11 @@ namespace ElevatorMusic
     /// </para>
     /// </remarks>
     ///    
-    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("#110", "#112", "1.0.0.0", IconResourceID = 400)]
     [Guid("7df0d6a2-ecd0-43e5-88e4-e4a037d0084b")]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string)]
+    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
+    [InstalledProductRegistration("Build Elevator Music", "Plays elevator music when building solutions and projects.", "1.0")]
+    // The following line will schedule the package to be initialized when a solution is being opened
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionOpening_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class ElevatorMusicPackage : AsyncPackage
     {
         /// <summary>
@@ -62,21 +64,22 @@ namespace ElevatorMusic
             // Do any initialization that requires the UI thread after switching to the UI thread.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
-            InitializeBuildEventActions();
-        }
-        #endregion
-
-        #region Build event action
-        private void InitializeBuildEventActions()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            var dte = GetService(typeof(SDTE)) as DTE;
+            // Build events            
+            var dte = await GetServiceAsync(typeof(DTE)) as DTE;
             Assumes.Present(dte);
-            dte.Events.BuildEvents.OnBuildBegin += (vsBuildScope Scope, vsBuildAction Action) => player.PlaySync();
-            dte.Events.BuildEvents.OnBuildDone += (vsBuildScope Scope, vsBuildAction Action) => player.Stop();
+            dte.Events.BuildEvents.OnBuildBegin += (vsBuildScope Scope, vsBuildAction Action) => 
+            {
+                Debug.WriteLine("My build begin action!");
+                player.PlaySync();
+            };
+            dte.Events.BuildEvents.OnBuildDone += (vsBuildScope Scope, vsBuildAction Action) =>
+            {
+                Debug.WriteLine("My build done action!");
+                player.Stop();
+            };            
+
         }
-        #endregion
+        #endregion        
 
     }
 }
