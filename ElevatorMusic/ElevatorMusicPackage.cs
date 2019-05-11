@@ -66,9 +66,10 @@ namespace ElevatorMusic
 
             // Add music files
             await Task.Run(() => 
-            {
+            {                
                 var directoryPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase) + "\\Resources\\Music\\";
                 directoryPath = directoryPath.Substring("file:\\".Length);
+                // var directoryPath = Environment.CurrentDirectory + "/Resources/Music/";
                 string[] filePaths = Directory.GetFiles(@directoryPath, "*.wav", SearchOption.TopDirectoryOnly);
                 foreach (string filePath in filePaths)
                 {

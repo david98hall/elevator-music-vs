@@ -12,7 +12,7 @@ namespace ElevatorMusic.Playback
     {
         internal bool Finished { get; private set; }
 
-        private CancellationTokenSource tokenSource = new CancellationTokenSource();
+        private CancellationTokenSource tokenSource;
         private CancellationToken cancellationToken;
         private readonly string fileName;
         private bool playingAsync = false;
@@ -22,6 +22,12 @@ namespace ElevatorMusic.Playback
         public AudioPlayer(string soundLocation) : base(soundLocation)
         {
             fileName = soundLocation;
+            ResetTokenSource();
+        }
+
+        private void ResetTokenSource()
+        {
+            tokenSource = new CancellationTokenSource();
             cancellationToken = tokenSource.Token;
         }
 
@@ -44,8 +50,9 @@ namespace ElevatorMusic.Playback
                     }
                 }
                 catch (OperationCanceledException)
-                {
+                {                    
                     base.Stop();
+                    ResetTokenSource();
                 }
                 finally
                 {
