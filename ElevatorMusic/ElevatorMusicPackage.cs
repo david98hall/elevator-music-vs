@@ -3,7 +3,6 @@ using Microsoft;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using System;
-using System.Diagnostics;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Threading;
