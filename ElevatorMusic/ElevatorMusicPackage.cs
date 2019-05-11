@@ -1,15 +1,12 @@
-﻿using System;
-using System.ComponentModel.Design;
+﻿using EnvDTE;
+using Microsoft;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell;
+using System;
 using System.Diagnostics;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Threading;
-using EnvDTE;
-using EnvDTE80;
-using Microsoft;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
 
 namespace ElevatorMusic
@@ -64,22 +61,11 @@ namespace ElevatorMusic
             // Do any initialization that requires the UI thread after switching to the UI thread.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
-            // Build events            
+            // Play elevator music when the build starts and stop the playback when the build is finished
             var dte = await GetServiceAsync(typeof(DTE)) as DTE;
             Assumes.Present(dte);
-            dte.Events.BuildEvents.OnBuildBegin += (vsBuildScope Scope, vsBuildAction Action) =>
-            {
-                player.PlaySync();
-                // _ = Task.Run(() => player.PlaySync());
-                Debug.WriteLine("My build begin action!");
-            };
-            dte.Events.BuildEvents.OnBuildDone += (vsBuildScope Scope, vsBuildAction Action) =>
-            {
-                player.Stop();
-                // _ = Task.Run(() => player.Stop());
-                Debug.WriteLine("My build done action!");
-            };            
-
+            dte.Events.BuildEvents.OnBuildBegin += (vsBuildScope Scope, vsBuildAction Action) => player.Play();
+            dte.Events.BuildEvents.OnBuildDone += (vsBuildScope Scope, vsBuildAction Action) => player.Stop();
         }
         #endregion        
 
