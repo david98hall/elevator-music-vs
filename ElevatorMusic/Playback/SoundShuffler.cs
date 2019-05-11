@@ -13,6 +13,7 @@ namespace ElevatorMusic.Playback
     {
         #region Sound related fields
         private readonly IDictionary<string, SoundPlayer> soundPlayers = new Dictionary<string, SoundPlayer>();
+        private readonly HashSet<string> shuffledSounds = new HashSet<string>();
         private readonly Stack<string> previousSounds = new Stack<string>();
         private readonly Stack<string> nextSounds = new Stack<string>();
         private volatile string currentSound;
@@ -53,6 +54,7 @@ namespace ElevatorMusic.Playback
         internal void Reset()
         {
             currentSound = null;
+            shuffledSounds.Clear();
             previousSounds.Clear();
             nextSounds.Clear();
         }
@@ -78,7 +80,12 @@ namespace ElevatorMusic.Playback
             var random = new Random();
             while (nextSounds.Count < soundPlayers.Count)
             {
-                nextSounds.Push(players[random.Next(players.Count)]);
+                var sound = players[random.Next(players.Count)];
+                if (!shuffledSounds.Contains(sound))
+                {
+                    shuffledSounds.Add(sound);
+                    nextSounds.Push(sound);
+                }
             }
         }
 
