@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="ElevatorMusic.0f0bd31c-e177-468d-8106-5fcb6585cd77" Version="1.01" Language="en-US" Publisher="Davuskus" />
+        <Identity Id="ElevatorMusic.0f0bd31c-e177-468d-8106-5fcb6585cd77" Version="1.02" Language="en-US" Publisher="Davuskus" />
         <DisplayName>Build Elevator Music</DisplayName>
         <Description xml:space="preserve">An extension that plays elevator music while building and cleaning projects and solutions.</Description>
         <MoreInfo>https://github.com/Davuskus/elevator-music-vs</MoreInfo>
