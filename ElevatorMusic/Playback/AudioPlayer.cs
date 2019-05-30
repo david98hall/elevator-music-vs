@@ -39,7 +39,7 @@ namespace ElevatorMusic.Playback
             {
                 try
                 {
-                    double lenMs = SoundInfo.GetSoundLength(fileName);
+                    double lenMs = SoundInfo.GetSoundLengthMs(fileName);
                     DateTime stopAt = DateTime.Now.AddMilliseconds(lenMs);
                     this.Play();
                     while (DateTime.Now < stopAt)

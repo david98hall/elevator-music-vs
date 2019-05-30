@@ -48,7 +48,6 @@
     <Compile Include="Playback\AudioPlayer.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Playback\SoundInfo.cs" />
     <Compile Include="Playback\SoundShuffler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ElevatorMusicPackage.cs" />
@@ -70,7 +69,12 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.0.2268" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Sound\ElevatorMusic.Sound.csproj">
+      <Project>{fb7d2b29-7fbd-4757-992c-0ed4bcd80160}</Project>
+      <Name>ElevatorMusic.Sound</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Icon\elevator-music-vs-icon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
