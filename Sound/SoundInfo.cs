@@ -1,30 +1,52 @@
-﻿using System;
+﻿using NAudio.Wave;
+using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace ElevatorMusic.Playback
 {
-    // Source: https://stackoverflow.com/a/29906524/5174527
     public static class SoundInfo
     {
-        [DllImport("winmm.dll")]
-        private static extern uint mciSendString(
-            string command,
-            StringBuilder returnValue,
-            int returnLength,
-            IntPtr winHandle);
 
-        public static int GetSoundLengthMs(string fileName)
+        /// <summary>
+        /// Gets the length of a wav file in seconds.
+        /// </summary>
+        /// <param name="fileName">The name of the wav file.</param>
+        /// <returns>Length in seconds.</returns>
+        public static int GetWavLength(string fileName)
         {
-            StringBuilder lengthBuf = new StringBuilder(32);
-
-            mciSendString(string.Format("open \"{0}\" type waveaudio alias wave", fileName), null, 0, IntPtr.Zero);
-            mciSendString("status wave length", lengthBuf, lengthBuf.Capacity, IntPtr.Zero);
-            mciSendString("close wave", null, 0, IntPtr.Zero);
-            int.TryParse(lengthBuf.ToString(), out int length);
-
-            return length;
+            return (int) (0.5 + GetWavLengthMs(fileName) / 1000.0);
         }
+
+        /// <summary>
+        /// Gets the length of a wav file in milliseconds.
+        /// </summary>
+        /// <param name="fileName">The name of the wav file.</param>
+        /// <returns>Length in milliseconds.</returns>
+        public static long GetWavLengthMs(string fileName)
+        {
+            return 1000 * GetFileSizeInBits(fileName) / GetWavBitrate(fileName);
+        }
+
+        private static long GetFileSizeInBits(string fileName)
+        {
+            return new FileInfo(fileName).Length * 8;
+        }
+
+        /// <summary>
+        /// Gets the wav file's bitrate (bits/second).
+        /// </summary>
+        /// <param name="fileName">The name of the wav file.</param>
+        /// <returns>The bitrate (bits/second).</returns>
+        public static int GetWavBitrate(string fileName)
+        {
+            using (var reader = new WaveFileReader(fileName))
+            {
+                return reader.WaveFormat.AverageBytesPerSecond * 8;
+            }
+        }
+
     }
 }
