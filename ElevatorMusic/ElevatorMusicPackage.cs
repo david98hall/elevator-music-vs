@@ -60,6 +60,9 @@ namespace ElevatorMusic
         #endregion
 
         #region Playback
+        private string ResourcesPath => (Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase) + "\\Resources")
+            .Substring("file:\\".Length);
+
         private async Task<SoundShuffler> GetSoundShufflerAsync()
         {
             var soundShuffler = new SoundShuffler();
@@ -67,8 +70,7 @@ namespace ElevatorMusic
             // Add music files
             await Task.Run(() => 
             {                
-                var directoryPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase) + "\\Resources\\Music\\";
-                directoryPath = directoryPath.Substring("file:\\".Length);
+                var directoryPath = ResourcesPath + "\\Music\\";                
                 // var directoryPath = Environment.CurrentDirectory + "/Resources/Music/";
                 string[] filePaths = Directory.GetFiles(@directoryPath, "*.wav", SearchOption.TopDirectoryOnly);
                 foreach (string filePath in filePaths)
@@ -78,7 +80,7 @@ namespace ElevatorMusic
             });
 
             return soundShuffler;
-        }
+        }      
 
         private async Task InitPlaybackEventActionsAsync(SoundShuffler soundShuffler, CancellationToken cancellationToken)
         {
@@ -90,7 +92,14 @@ namespace ElevatorMusic
             var dte = await GetServiceAsync(typeof(DTE)) as DTE;
             Assumes.Present(dte);
             dte.Events.BuildEvents.OnBuildBegin += (vsBuildScope Scope, vsBuildAction Action) => soundShuffler.ShufflePlayAsync(true).ConfigureAwait(true);
-            dte.Events.BuildEvents.OnBuildDone += (vsBuildScope Scope, vsBuildAction Action) => soundShuffler.StopPlayback();
+            dte.Events.BuildEvents.OnBuildDone += (vsBuildScope Scope, vsBuildAction Action) => 
+            {
+                // Stop the music
+                soundShuffler.StopPlayback();
+
+                // Play elevator bell sound
+                new SoundPlayer(ResourcesPath + "\\Audio\\Elevator Bell.wav").Play();
+            };
         }
         #endregion
 
